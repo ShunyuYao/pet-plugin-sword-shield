@@ -1,0 +1,17 @@
+{
+  "name": "pet-plugin-sword-shield",
+  "version": "0.3.1",
+  "private": true,
+  "description": "Sword & Shield Pup appearance plugin for Tulibang",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShunyuYao/pet-plugin-sword-shield.git"
+  },
+  "scripts": {
+    "test": "npm run test:delivery",
+    "test:delivery": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "build": "python3 scripts/build.py",
+    "check:public": "python3 scripts/build.py --check-only"
+  }
+}

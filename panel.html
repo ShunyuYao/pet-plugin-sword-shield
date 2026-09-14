@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>形象试用</title><link rel="stylesheet" href="panel.css"></head>
+<body>
+  <header><span>伙伴外观</span><button id="close" aria-label="关闭面板">×</button></header>
+  <main>
+    <h1 id="name">正在加载形象…</h1>
+    <p class="intro">换个样子，还是你的伙伴。</p>
+    <div class="preview" aria-label="动作预览"><img id="actor" alt="形象动作预览"><span id="preview-error" role="alert"></span></div>
+    <div class="clips" role="group" aria-label="预览动作"><button id="idle" aria-pressed="true">待机</button><button id="walk" aria-pressed="false">走路</button><button id="pause" aria-pressed="false">暂停</button></div>
+    <p class="hint" id="timing">预览只在这个面板播放</p>
+    <label class="hint">其他预览动作 <select id="preview-action" aria-label="选择预览动作"></select></label>
+    <section class="state"><span class="label">当前伙伴</span><strong id="companion">—</strong><span id="status" role="status" aria-live="polite">正在查询外观…</span></section>
+    <div class="actions"><button id="apply" class="primary" disabled>使用这个形象</button><button id="reset" disabled>恢复原外观</button></div>
+    <p class="hint">名字、人设和记忆保留。关闭面板后，已使用的外观仍会保留。</p>
+    <div class="clips"><div id="animation" role="group" aria-label="选择伙伴动作"></div><button id="play" disabled>让伙伴做动作</button><button id="stop-animation">回到待机</button></div>
+    <p class="hint" id="animation-status" role="status">正在查询可用动作…</p>
+    <div class="feedback"><p id="notice" role="status" aria-live="polite"></p><button id="refresh">刷新状态</button></div>
+  </main>
+  <script src="preview.js"></script><script src="panel.js"></script>
+</body></html>

@@ -1,0 +1,87 @@
+{
+  "key": "sword-shield-pilot",
+  "name": "刀盾小狗 · 八动作试装",
+  "icon": "tray.png",
+  "anim": {
+    "idle": {
+      "dir": "idle",
+      "base": "idle",
+      "pad": 2,
+      "count": 12,
+      "fps": 8,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    },
+    "walk": {
+      "dir": "walk",
+      "base": "walk",
+      "pad": 2,
+      "count": 12,
+      "fps": 12.5,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    },
+    "greet": {
+      "dir": "greet",
+      "base": "greet",
+      "pad": 2,
+      "count": 6,
+      "fps": 6.0,
+      "loop": false,
+      "face": 1,
+      "ext": "png"
+    },
+    "speak": {
+      "dir": "speak",
+      "base": "speak",
+      "pad": 2,
+      "count": 6,
+      "fps": 6.0,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    },
+    "sleep": {
+      "dir": "sleep",
+      "base": "sleep",
+      "pad": 2,
+      "count": 6,
+      "fps": 3.0,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    },
+    "wake": {
+      "dir": "wake",
+      "base": "wake",
+      "pad": 2,
+      "count": 6,
+      "fps": 5.25,
+      "loop": false,
+      "face": 1,
+      "ext": "png"
+    },
+    "drag": {
+      "dir": "drag",
+      "base": "drag",
+      "pad": 2,
+      "count": 6,
+      "fps": 5.25,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    },
+    "send": {
+      "dir": "send",
+      "base": "send",
+      "pad": 2,
+      "count": 8,
+      "fps": 9.0,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    }
+  }
+}

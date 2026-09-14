@@ -1,0 +1,30 @@
+{
+  "id": "sword-shield-pilot",
+  "name": "刀盾小狗",
+  "version": "0.3.1",
+  "apiVersion": 1,
+  "kind": [
+    "asset",
+    "panel"
+  ],
+  "permissions": [
+    "ui",
+    "appearance",
+    "pet"
+  ],
+  "entry": {
+    "character": "character.json",
+    "panel": {
+      "src": "panel.html",
+      "width": 440,
+      "height": 650,
+      "title": "伙伴外观 · 刀盾小狗"
+    }
+  },
+  "updateReminders": false,
+  "minHostVersion": "0.23.0",
+  "description": "刀盾小狗自定义形象，包含八个动作与外观预览面板。",
+  "author": "github:ShunyuYao",
+  "homepage": "https://github.com/ShunyuYao/pet-plugin-sword-shield",
+  "nodeAccess": false
+}
