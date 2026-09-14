@@ -1,6 +1,6 @@
 {
   "key": "sword-shield-pilot",
-  "name": "刀盾小狗 · 八动作试装",
+  "name": "刀盾小狗 · 探头动作试装",
   "icon": "tray.png",
   "anim": {
     "idle": {
@@ -79,6 +79,36 @@
       "pad": 2,
       "count": 8,
       "fps": 9.0,
+      "loop": true,
+      "face": 1,
+      "ext": "png"
+    },
+    "peek": {
+      "dir": "peek",
+      "base": "peek",
+      "pad": 2,
+      "count": 12,
+      "fps": 12,
+      "loop": false,
+      "face": 1,
+      "ext": "png"
+    },
+    "unpeek": {
+      "dir": "unpeek",
+      "base": "unpeek",
+      "pad": 2,
+      "count": 12,
+      "fps": 15,
+      "loop": false,
+      "face": 1,
+      "ext": "png"
+    },
+    "edgehide": {
+      "dir": "edgehide",
+      "base": "edgehide",
+      "pad": 2,
+      "count": 1,
+      "fps": 1,
       "loop": true,
       "face": 1,
       "ext": "png"

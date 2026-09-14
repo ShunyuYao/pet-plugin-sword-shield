@@ -11,7 +11,12 @@ import zipfile
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-ACTION_COUNTS = dict(idle=12, walk=12, greet=6, speak=6, sleep=6, wake=6, drag=6, send=8)
+ACCEPTED_ACTION_COUNTS = dict(idle=12, walk=12, greet=6, speak=6, sleep=6, wake=6, drag=6, send=8)
+ACTION_COUNTS = dict(ACCEPTED_ACTION_COUNTS, peek=12, unpeek=12, edgehide=1)
+EDGE_LOOPS = dict(peek=False, unpeek=False, edgehide=True)
+EDGE_FPS = dict(peek=12, unpeek=15, edgehide=1)
+MAX_PNG_BYTES = 8 * 1024**2
+MAX_PIXELS = 32 * 1024**2
 BASE_FILES = ('manifest.json', 'character.json', 'panel.html', 'panel.css', 'panel.js',
               'preview.js', 'tray.png', 'LICENSE', 'ASSETS.md')
 
@@ -100,7 +105,15 @@ def validate(root):
     expected_images = set(runtime_files(root)) - set(BASE_FILES) | {'tray.png'}
     if set(hashes) != expected_images:
         raise ValueError('frozen asset inventory mismatch')
+    accepted = json.loads(read_regular(root, 'tests/accepted-v0.3.1.sha256.json'))
+    accepted_images = {f'{state}/{state}{i:02}.png'
+                       for state, count in ACCEPTED_ACTION_COUNTS.items() for i in range(count)} | {'tray.png'}
+    if set(accepted) != accepted_images:
+        raise ValueError('accepted v0.3.1 inventory mismatch')
+    if any(hashes[name] != digest for name, digest in accepted.items()):
+        raise ValueError('accepted v0.3.1 assets must remain unchanged')
     total_bytes = pixels = frames = 0
+    edge_dimensions = set()
     for state, count in ACTION_COUNTS.items():
         clip = character['anim'][state]
         if (clip.get('dir') != state or clip.get('base') != state or clip.get('count') != count
@@ -108,16 +121,28 @@ def validate(root):
                 or type(clip.get('loop')) is not bool or not isinstance(clip.get('fps'), (int, float))
                 or not 0 < clip['fps'] <= 60):
             raise ValueError('animation contract mismatch: ' + state)
+        if state in EDGE_LOOPS and clip['loop'] is not EDGE_LOOPS[state]:
+            raise ValueError('edge animation loop contract mismatch: ' + state)
+        if state in EDGE_FPS and clip['fps'] != EDGE_FPS[state]:
+            raise ValueError('edge animation timing contract mismatch: ' + state)
         for i in range(count):
             name = f'{state}/{state}{i:02}.png'
             raw = read_regular(root, name)
             pixels += png_pixels(raw)
+            if state in EDGE_LOOPS:
+                edge_dimensions.add(struct.unpack('>II', raw[16:24]))
             if hashlib.sha256(raw).hexdigest() != hashes[name]:
                 raise ValueError('accepted asset hash changed: ' + name)
             total_bytes += len(raw)
             frames += 1
-    if total_bytes > 8 * 1024**2 or pixels > 32 * 1024**2 or frames > 256:
+    if total_bytes > MAX_PNG_BYTES or pixels > MAX_PIXELS or frames > 256:
         raise ValueError('appearance resource budget exceeded')
+    if len(edge_dimensions) != 1:
+        raise ValueError('edge animation canvas dimensions must match')
+    endpoint = read_regular(root, 'peek/peek11.png')
+    if (read_regular(root, 'unpeek/unpeek00.png') != endpoint
+            or read_regular(root, 'edgehide/edgehide00.png') != endpoint):
+        raise ValueError('peek, edgehide and unpeek seam must be byte-identical')
     icon = read_regular(root, 'tray.png')
     png_pixels(icon)
     if hashlib.sha256(icon).hexdigest() != hashes['tray.png']:
@@ -172,8 +197,9 @@ def build(root=ROOT, destination=None):
     (destination / 'plugin.zip.sha256').write_text(digest + '  plugin.zip\n', encoding='ascii')
     (destination / 'release-notes.md').write_text(
         '刀盾小狗 / Sword & Shield Pup\n\n'
-        '八个动作，62 帧透明 PNG；需要吐梨邦 0.23.0 或更新的兼容测试版本。\n'
-        'Eight actions, 62 transparent PNG frames. Requires compatible Tulibang 0.23.0 or later.\n\n'
+        '11 个动作状态，87 帧透明 PNG；新增探头、收回与贴边停靠，保留原有 62 帧。\n'
+        '11 animation states, 87 transparent PNG frames; adds peek, unpeek and edge rest, retaining the original 62 frames.\n'
+        '需要吐梨邦 0.23.0 或更新的兼容测试版本。Requires compatible Tulibang 0.23.0 or later.\n\n'
         '权限 / Permissions: ui, appearance, pet. Node access: false.\n'
         '安装不会自动换装；在插件面板选择使用。Installing does not change appearance automatically.\n\n'
         '代码使用 MIT 许可；图片来源与权利说明见包内 ASSETS.md，不包含在代码许可内。\n'

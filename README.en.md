@@ -2,7 +2,9 @@
 
 [简体中文](README.md)
 
-An appearance plugin for Tulibang with eight animations, a preview panel, and local pet animation controls. Applying it keeps your companion's name, personality, and memories.
+An appearance plugin for Tulibang with a preview panel and local pet animation controls. Applying it keeps your companion's name, personality, and memories.
+
+This source is the **0.4.0 candidate, not a published release**. It adds peek, unpeek, and edge rest for 11 animation states. The public 0.3.1 remains available; changing candidate source does not update the marketplace or existing Release archives.
 
 Requires **a compatible Tulibang 0.23.0 or later test build**, with SDK `apiVersion: 1`. The host is currently available through invited testing channels. This repository distributes only the plugin.
 
@@ -15,9 +17,9 @@ Requires **a compatible Tulibang 0.23.0 or later test build**, with SDK `apiVers
 
 Disabling or removing the active asset plugin restores the original companion appearance. If another appearance has since been applied, this plugin does not undo that later choice. The plugin ID remains `sword-shield-pilot` for upgrade continuity with earlier trial versions using the same ID.
 
-## Eight animations
+## The candidate's 11 animation states
 
-All 62 frames are transparent 512 × 512 PNG files. Idle and walk retain their original 12 frames each.
+There are 87 transparent RGBA8 PNG frames. The original eight actions retain all 62 frames at 512 × 512, together with the icon, byte for byte. Peek and unpeek add 12 frames each, with one edge-rest frame. The new states share a 288 × 288 canvas. The build enforces the existing total limits of 8 MiB of frame data and 32 Mi decoded pixels.
 
 | Animation | Frames | FPS | Pet playback |
 | --- | ---: | ---: | --- |
@@ -29,8 +31,13 @@ All 62 frames are transparent 512 × 512 PNG files. Idle and walk retain their o
 | Wake `wake` | 6 | 5.25 | Once |
 | Held `drag` | 6 | 5.25 | Loop |
 | Carry `send` | 8 | 9 | Loop |
+| Peek `peek` | 12 | 12 | Once |
+| Unpeek `unpeek` | 12 | 15 | Once |
+| Edge rest `edgehide` | 1 | 1 | Hold |
 
-The previews below and in the panel loop for inspection; greet and wake play once on the desktop. Carry shows stepping in place with an item. Actual movement and visits belong to the host. Some visual differences remain between animations, and the six-frame actions have limited smoothness.
+The previews below and in the panel loop for inspection; greet, wake, peek, and unpeek play once on the desktop. The final peek frame, edge-rest frame, and first unpeek frame are identical for a continuous join. Carry shows stepping in place with an item. Actual movement, screen-edge behavior, and visits belong to the host. Some visual differences remain between animations, and the six-frame actions have limited smoothness.
+
+On host 0.23.1, docking the local pet plays peek and holds, while a visitor leaving the screen edge plays unpeek. Dragging the local pet away uses the existing drag action and does not automatically play unpeek. Both clips can also be played manually from the plugin panel.
 
 | Idle | Walk |
 | --- | --- |
@@ -41,6 +48,8 @@ The previews below and in the panel loop for inspection; greet and wake play onc
 | ![Sleep](docs/previews/sleep.gif) | ![Wake](docs/previews/wake.gif) |
 | Held | Carry |
 | ![Held](docs/previews/drag.gif) | ![Carry](docs/previews/send.gif) |
+| Peek (candidate) | Unpeek (candidate) |
+| ![Peek](docs/previews/peek.gif) | ![Unpeek](docs/previews/unpeek.gif) |
 
 ## Permissions and data
 

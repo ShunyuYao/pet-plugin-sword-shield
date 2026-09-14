@@ -1,7 +1,7 @@
 {
   "id": "sword-shield-pilot",
   "name": "刀盾小狗",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "apiVersion": 1,
   "kind": [
     "asset",
@@ -23,7 +23,7 @@
   },
   "updateReminders": false,
   "minHostVersion": "0.23.0",
-  "description": "刀盾小狗自定义形象，包含八个动作与外观预览面板。",
+  "description": "刀盾小狗自定义形象，包含探头、收回及原有八个动作与外观预览面板。",
   "author": "github:ShunyuYao",
   "homepage": "https://github.com/ShunyuYao/pet-plugin-sword-shield",
   "nodeAccess": false

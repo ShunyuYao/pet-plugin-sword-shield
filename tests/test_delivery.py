@@ -5,14 +5,25 @@ import json
 import os
 from pathlib import Path
 import shutil
+import struct
 import tempfile
 import unittest
 import zipfile
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('plugin_build', ROOT / 'scripts/build.py')
 build = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build)
+
+
+def rgba_png(width, height, *, level=9, depth=8, color=6):
+    def chunk(kind, body):
+        return struct.pack('>I', len(body)) + kind + body + struct.pack('>I', zlib.crc32(kind + body))
+    rows = (b'\0' + b'\0\0\0\0' * width) * height
+    return (b'\x89PNG\r\n\x1a\n'
+            + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, depth, color, 0, 0, 0))
+            + chunk(b'IDAT', zlib.compress(rows, level)) + chunk(b'IEND', b''))
 
 
 class DeliveryTests(unittest.TestCase):
@@ -24,20 +35,111 @@ class DeliveryTests(unittest.TestCase):
         return root
 
     def test_62_accepted_frames_and_icon_are_byte_identical(self):
-        hashes = json.loads((ROOT / 'tests/assets.sha256.json').read_text())
+        baseline = (ROOT / 'tests/accepted-v0.3.1.sha256.json').read_bytes()
+        self.assertEqual(hashlib.sha256(baseline).hexdigest(),
+                         'cbdb3c56bc29e3f89f04d47ef306fa5cc3ea32c2ff70ecfdb3b59de1d6f3c7f3')
+        hashes = json.loads(baseline)
         self.assertEqual(len(hashes), 63)
+        self.assertEqual(set(hashes), {f'{state}/{state}{i:02}.png'
+                         for state, count in build.ACCEPTED_ACTION_COUNTS.items() for i in range(count)} | {'tray.png'})
         for name, expected in hashes.items():
             self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), expected, name)
+
+    def test_87_frames_fit_unchanged_production_resource_limits(self):
+        self.assertEqual(build.MAX_PNG_BYTES, 8 * 1024**2)
+        self.assertEqual(build.MAX_PIXELS, 32 * 1024**2)
+        hashes = json.loads((ROOT / 'tests/assets.sha256.json').read_text())
+        self.assertEqual(len(hashes), 88)
         report = build.validate(ROOT)
-        self.assertEqual(report['frames'], 62)
-        self.assertEqual(report['pngBytes'], 7931439)
-        self.assertEqual(report['pixels'], 16252928)
+        self.assertEqual(report['frames'], 87)
+        self.assertLessEqual(report['pngBytes'], build.MAX_PNG_BYTES)
+        self.assertLessEqual(report['pixels'], build.MAX_PIXELS)
+
+    def replace_and_rehash(self, root, replacements):
+        ledger = root / 'tests/assets.sha256.json'
+        hashes = json.loads(ledger.read_text())
+        for name, raw in replacements.items():
+            (root / name).write_bytes(raw)
+            hashes[name] = hashlib.sha256(raw).hexdigest()
+        ledger.write_text(json.dumps(hashes))
+
+    def test_updating_current_ledger_cannot_replace_an_accepted_frame_or_icon(self):
+        for name in ('idle/idle00.png', 'tray.png'):
+            with self.subTest(name=name):
+                root = self.fixture()
+                self.replace_and_rehash(root, {name: (root / 'idle/idle01.png').read_bytes()})
+                with self.assertRaisesRegex(ValueError, 'v0.3.1 assets must remain unchanged'):
+                    build.validate(root)
+
+    def test_real_valid_pngs_cannot_exceed_byte_or_decoded_pixel_budget(self):
+        for budget, width, level in [('bytes', 512, 0), ('pixels', 1024, 9)]:
+            with self.subTest(budget=budget):
+                root = self.fixture()
+                raw = rgba_png(width, width, level=level)
+                self.assertEqual(build.png_pixels(raw), width * width)
+                replacements = {f'{state}/{state}{i:02}.png': raw
+                                for state in build.EDGE_LOOPS for i in range(build.ACTION_COUNTS[state])}
+                self.replace_and_rehash(root, replacements)
+                with self.assertRaisesRegex(ValueError, 'resource budget exceeded'):
+                    build.validate(root)
+
+    def test_png_requires_rgba8_and_bounded_dimensions(self):
+        for kwargs in ({'depth': 16}, {'color': 2}, {}):
+            width = 1025 if not kwargs else 16
+            with self.subTest(width=width, kwargs=kwargs):
+                with self.assertRaisesRegex(ValueError, 'bounded RGBA8'):
+                    build.png_pixels(rgba_png(width, 16, **kwargs))
+
+    def test_peek_hold_unpeek_share_exact_seams_and_have_motion(self):
+        endpoint = (ROOT / 'peek/peek11.png').read_bytes()
+        self.assertEqual((ROOT / 'edgehide/edgehide00.png').read_bytes(), endpoint)
+        self.assertEqual((ROOT / 'unpeek/unpeek00.png').read_bytes(), endpoint)
+        for state in ('peek', 'unpeek'):
+            frames = [(ROOT / f'{state}/{state}{i:02}.png').read_bytes() for i in range(12)]
+            self.assertNotEqual(frames[0], frames[-1], state + ' must transition, not hold one frame')
+        for name in ('edgehide/edgehide00.png', 'unpeek/unpeek00.png'):
+            with self.subTest(name=name):
+                root = self.fixture()
+                self.replace_and_rehash(root, {name: (root / 'peek/peek00.png').read_bytes()})
+                with self.assertRaisesRegex(ValueError, 'seam must be byte-identical'):
+                    build.validate(root)
+
+    def test_edge_clip_loops_and_canvas_seams_are_not_relaxed(self):
+        for state, expected in build.EDGE_LOOPS.items():
+            root = self.fixture()
+            file = root / 'character.json'
+            character = json.loads(file.read_text())
+            self.assertIs(character['anim'][state]['loop'], expected)
+            character['anim'][state]['loop'] = not expected
+            file.write_text(json.dumps(character))
+            with self.assertRaisesRegex(ValueError, 'loop contract mismatch'):
+                build.validate(root)
+        root = self.fixture()
+        old_width = struct.unpack('>I', (root / 'peek/peek03.png').read_bytes()[16:20])[0]
+        new_width = 384 if old_width == 320 else 320
+        self.replace_and_rehash(root, {'peek/peek03.png': rgba_png(new_width, new_width)})
+        with self.assertRaisesRegex(ValueError, 'canvas dimensions must match'):
+            build.validate(root)
+
+    def test_edge_clip_timing_matches_the_accepted_durations(self):
+        character = json.loads((ROOT / 'character.json').read_text())
+        for state, count, fps in [('peek', 12, 12), ('unpeek', 12, 15), ('edgehide', 1, 1)]:
+            with self.subTest(state=state):
+                self.assertEqual(character['anim'][state]['count'], count)
+                self.assertEqual(character['anim'][state]['fps'], fps)
+                root = self.fixture()
+                file = root / 'character.json'
+                changed = json.loads(file.read_text())
+                changed['anim'][state]['fps'] = fps + 1
+                file.write_text(json.dumps(changed))
+                with self.assertRaisesRegex(ValueError, 'timing contract mismatch'):
+                    build.validate(root)
 
     def test_public_manifest_limits_permissions_and_old_host_compatibility(self):
         manifest = json.loads((ROOT / 'manifest.json').read_text())
         self.assertEqual(manifest['id'], 'sword-shield-pilot')
         self.assertEqual(manifest['name'], '刀盾小狗')
-        self.assertEqual(manifest['version'], '0.3.1')
+        self.assertEqual(manifest['version'], '0.4.0')
         self.assertEqual(manifest['minHostVersion'], '0.23.0')
         self.assertEqual(manifest['permissions'], ['ui', 'appearance', 'pet'])
         self.assertIs(manifest['nodeAccess'], False)
@@ -108,7 +210,7 @@ class DeliveryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build.validate(root)
 
-    def test_preview_uses_all_eight_actual_clips(self):
+    def test_preview_uses_all_eleven_actual_clips(self):
         content = (ROOT / 'preview.js').read_text().strip()
         prefix = 'window.appearancePreview = '
         self.assertTrue(content.startswith(prefix))
@@ -120,11 +222,12 @@ class DeliveryTests(unittest.TestCase):
             self.assertEqual(clip['frames'], [f'{state}/{state}{i:02}.png' for i in range(count)])
             self.assertEqual(clip['fps'], character['anim'][state]['fps'])
             self.assertEqual(clip['loop'], character['anim'][state]['loop'])
-            self.assertTrue((ROOT / f'docs/previews/{state}.gif').read_bytes().startswith(b'GIF89a'))
+            if state != 'edgehide':
+                self.assertTrue((ROOT / f'docs/previews/{state}.gif').read_bytes().startswith(b'GIF89a'))
 
     def test_release_tag_matches_both_manifests(self):
-        build.validate_tag(ROOT, 'v0.3.1')
-        for tag in ('v0.3.0', '0.3.1', 'v0.3.1/extra', ''):
+        build.validate_tag(ROOT, 'v0.4.0')
+        for tag in ('v0.3.1', '0.4.0', 'v0.4.0/extra', ''):
             with self.assertRaises(ValueError):
                 build.validate_tag(ROOT, tag)
 

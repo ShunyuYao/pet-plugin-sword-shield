@@ -1,5 +1,9 @@
 # 构建与发布 / Build and release
 
+当前源码是尚未公开发布的 0.4.0 候选版；以下命令生成本地待验收安装包，不会上传 Release 或改变市场登记。公开的 0.3.1 安装包保持不变。
+
+The current source is the unpublished 0.4.0 candidate. The commands below generate a local archive for acceptance; they do not upload a Release or change the marketplace entry. The public 0.3.1 archive remains unchanged.
+
 ## 本地验证 / Local checks
 
 Python 3.9+ 标准库即可独立构建。`npm` 仅作为具名命令入口，不安装依赖；插件运行本身不使用 Python 或 Node 权限。
@@ -12,9 +16,17 @@ npm run check:public
 npm run build
 ```
 
-测试包括全部 62 帧与图标的冻结 SHA-256、透明 PNG 格式及资源预算、八个动作和预览一致性、权限/版本边界、符号链接与损坏文件拒绝、允许列表打包、跨文件时间/权限的重复构建一致性。`tests/assets.sha256.json` 是已验收素材的逐文件基线，升级素材时须明确评审后更新。
+测试覆盖 11 个状态、87 帧与图标的 SHA-256、RGBA8 PNG 格式、原有 8 MiB 字节与 32 Mi 解码像素上限、动作和预览一致性、权限/版本边界、符号链接与损坏文件拒绝、允许列表打包、跨文件时间/权限的重复构建一致性。预算负向测试使用可解码的真实 PNG，分别超过字节或像素限制，不能靠提高预算让新素材通过。
 
-Tests cover frozen SHA-256 hashes for all 62 frames and the icon, PNG format and resource budgets, eight animation/preview contracts, permissions and versions, symlink/corruption rejection, the archive allowlist, and reproducibility across changed file timestamps and modes. Asset updates require explicit review before changing `tests/assets.sha256.json`.
+Tests cover 11 states, SHA-256 hashes for all 87 frames and the icon, RGBA8 PNG format, the existing 8 MiB byte and 32 Mi decoded-pixel limits, animation/preview contracts, permissions and versions, symlink/corruption rejection, the archive allowlist, and reproducibility across changed file timestamps and modes. Negative budget checks use real decodable PNGs that exceed the byte or pixel limit separately. New assets must fit the existing budgets.
+
+`tests/accepted-v0.3.1.sha256.json` 完整保留原版本 62 帧和图标的 63 条哈希；该基线本身也有摘要断言，不随本轮素材升级修改。`tests/assets.sha256.json` 是候选版全部 88 张 PNG 的清单，新素材评审后更新；即使更新候选清单，也不能替换原有素材字节。
+
+`tests/accepted-v0.3.1.sha256.json` preserves all 63 hashes for the preceding version's 62 frames and icon. The baseline file has its own digest assertion and remains unchanged during this asset update. `tests/assets.sha256.json` inventories all 88 candidate PNGs and is updated after reviewing new assets. Updating the current inventory cannot replace the preceding assets.
+
+探头为 12 帧、12 fps、单次；收回为 12 帧、15 fps、单次；停靠为 1 帧、1 fps、循环。三者使用相同画布，`peek/peek11.png`、`edgehide/edgehide00.png`、`unpeek/unpeek00.png` 必须逐字节一致。接缝负向测试也更新候选哈希，证明其拒绝来自接缝合同而非哈希偶然不符。收回末帧允许透明或只保留细轮廓，不以强制不透明像素覆盖率作为验收条件。
+
+Peek is 12 frames at 12 fps, played once; unpeek is 12 frames at 15 fps, played once; edge rest is one frame at 1 fps, looping. The three states share a canvas size. `peek/peek11.png`, `edgehide/edgehide00.png`, and `unpeek/unpeek00.png` must be byte-identical. Negative seam checks also update the candidate hashes so rejection tests the seam contract itself. The final unpeek frame may be transparent or retain a thin outline; acceptance does not impose a minimum opaque-pixel ratio.
 
 ## 安装包内容 / Archive contents
 
@@ -22,7 +34,7 @@ Tests cover frozen SHA-256 hashes for all 62 frames and the icon, PNG format and
 
 - `manifest.json`, `character.json`
 - `panel.html`, `panel.css`, `panel.js`, `preview.js`
-- `tray.png` 和八个动作目录中的 62 张 PNG / the 62 PNG files in the eight action directories
+- `tray.png` 和 11 个动作目录中的 87 张 PNG / the 87 PNG files in the 11 action directories
 - `LICENSE`, `ASSETS.md`
 
 文档预览、测试、构建脚本、CI 配置不会打包。ZIP 固定排序、时间戳与文件权限，并使用 STORE 模式；PNG 已压缩，避免依赖不同压缩库版本。`plugin.zip.sha256` 是安装 ZIP 的摘要，与 CI artifact 自身的摘要不同。
