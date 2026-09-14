@@ -1,8 +1,8 @@
 # 构建与发布 / Build and release
 
-当前源码是尚未公开发布的 0.4.0 候选版；以下命令生成本地待验收安装包，不会上传 Release 或改变市场登记。公开的 0.3.1 安装包保持不变。
+当前版本为 0.4.0。以下本地命令只验证并构建安装包；GitHub Release 由下述标签发布流程生成，市场条目另行同步。旧版本标签和附件保留供回退。
 
-The current source is the unpublished 0.4.0 candidate. The commands below generate a local archive for acceptance; they do not upload a Release or change the marketplace entry. The public 0.3.1 archive remains unchanged.
+The current version is 0.4.0. The local commands below only validate and build the archive. The tag workflow publishes GitHub Releases, and market entries are synchronized separately. Earlier tags and assets remain available for rollback.
 
 ## 本地验证 / Local checks
 
@@ -43,9 +43,9 @@ Documentation previews, tests, build scripts, and CI configuration are excluded.
 
 ## CI 与发布 / CI and release
 
-推送到 `main`、提交 PR 或手动运行会执行验证并构建，上传有效期 7 天的插件构建产物。推送 `v` 加插件版本号的标签（如 `v0.3.1`）时，CI 核对标签与两个元数据版本一致，再由独立发布任务上传 `plugin.zip` 和摘要到 GitHub Release。失败会中止，不覆盖既有 Release 或偷偷移动标签。
+推送到 `main`、提交 PR 或手动运行会执行验证并构建，上传有效期 7 天的插件构建产物。推送 `v` 加插件版本号的标签（如 `v0.4.0`）时，CI 核对标签与两个元数据版本一致，再由独立发布任务上传 `plugin.zip` 和摘要到 GitHub Release。失败会中止，不覆盖既有 Release 或偷偷移动标签。
 
-Pushes to `main`, pull requests, and manual runs validate and build the plugin, retaining build artifacts for seven days. A pushed version tag such as `v0.3.1` must match both metadata versions. A separate publishing job then attaches `plugin.zip` and its checksum to a GitHub Release. Failure aborts the process; it does not replace existing releases or move tags.
+Pushes to `main`, pull requests, and manual runs validate and build the plugin, retaining build artifacts for seven days. A pushed version tag such as `v0.4.0` must match both metadata versions. A separate publishing job then attaches `plugin.zip` and its checksum to a GitHub Release. Failure aborts the process; it does not replace existing releases or move tags.
 
 构建任务只有 `contents: read`；仅标签发布任务使用 `contents: write` 和自动生成的 `GITHUB_TOKEN`。仅检出本仓库，所有 Action 固定到完整提交 SHA，不使用个人凭据，不需要其他代码仓库。发布说明只包含插件信息。
 

@@ -4,7 +4,7 @@
 
 An appearance plugin for Tulibang with a preview panel and local pet animation controls. Applying it keeps your companion's name, personality, and memories.
 
-This source is the **0.4.0 candidate, not a published release**. It adds peek, unpeek, and edge rest for 11 animation states. The public 0.3.1 remains available; changing candidate source does not update the marketplace or existing Release archives.
+**0.4.0** adds peek, unpeek, and edge rest for 11 animation states. All 62 frames in the preceding eight actions remain unchanged, including the selected 12-frame walk.
 
 Requires **a compatible Tulibang 0.23.0 or later test build**, with SDK `apiVersion: 1`. The host is currently available through invited testing channels. This repository distributes only the plugin.
 
@@ -17,7 +17,7 @@ Requires **a compatible Tulibang 0.23.0 or later test build**, with SDK `apiVers
 
 Disabling or removing the active asset plugin restores the original companion appearance. If another appearance has since been applied, this plugin does not undo that later choice. The plugin ID remains `sword-shield-pilot` for upgrade continuity with earlier trial versions using the same ID.
 
-## The candidate's 11 animation states
+## 11 animation states
 
 There are 87 transparent RGBA8 PNG frames. The original eight actions retain all 62 frames at 512 × 512, together with the icon, byte for byte. Peek and unpeek add 12 frames each, with one edge-rest frame. The new states share a 288 × 288 canvas. The build enforces the existing total limits of 8 MiB of frame data and 32 Mi decoded pixels.
 
@@ -48,8 +48,10 @@ On host 0.23.1, docking the local pet plays peek and holds, while a visitor leav
 | ![Sleep](docs/previews/sleep.gif) | ![Wake](docs/previews/wake.gif) |
 | Held | Carry |
 | ![Held](docs/previews/drag.gif) | ![Carry](docs/previews/send.gif) |
-| Peek (candidate) | Unpeek (candidate) |
+| Peek | Unpeek |
 | ![Peek](docs/previews/peek.gif) | ![Unpeek](docs/previews/unpeek.gif) |
+
+The new peek and unpeek clips were generated from the existing character reference; they are not direct edits of the original video frames. See [image provenance](ASSETS.md).
 
 ## Permissions and data
 
