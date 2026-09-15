@@ -44,6 +44,13 @@ class DeliveryTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashes['tray.png'], json.loads(historical)['tray.png'])
 
+    def test_arrival_voice_contract_and_hash_are_required(self):
+        root = self.fixture()
+        file = root / 'arrival.wav'
+        file.write_bytes(file.read_bytes()[:-2])
+        with self.assertRaisesRegex(ValueError, 'arrival audio hash'):
+            build.validate(root)
+
     def test_greeting_keeps_complete_b_timing(self):
         for field, value in [('fps', 12), ('loop', True)]:
             root = self.fixture()
@@ -148,7 +155,7 @@ class DeliveryTests(unittest.TestCase):
         manifest = json.loads((ROOT / 'manifest.json').read_text())
         self.assertEqual(manifest['id'], 'sword-shield-pilot')
         self.assertEqual(manifest['name'], '刀盾小狗')
-        self.assertEqual(manifest['version'], '0.5.0')
+        self.assertEqual(manifest['version'], '0.6.0')
         self.assertEqual(manifest['minHostVersion'], '0.23.0')
         self.assertEqual(manifest['permissions'], ['ui', 'appearance', 'pet'])
         self.assertIs(manifest['nodeAccess'], False)
@@ -235,7 +242,7 @@ class DeliveryTests(unittest.TestCase):
                 self.assertTrue((ROOT / f'docs/previews/{state}.gif').read_bytes().startswith(b'GIF89a'))
 
     def test_release_tag_matches_both_manifests(self):
-        build.validate_tag(ROOT, 'v0.5.0')
+        build.validate_tag(ROOT, 'v0.6.0')
         for tag in ('v0.3.1', '0.5.0', 'v0.5.0/extra', ''):
             with self.assertRaises(ValueError):
                 build.validate_tag(ROOT, tag)

@@ -113,5 +113,10 @@
       "face": 1,
       "ext": "png"
     }
+  },
+  "arrivalAudio": {
+    "file": "arrival.wav",
+    "repeats": 2,
+    "gapMs": 180
   }
 }

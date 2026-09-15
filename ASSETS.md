@@ -18,3 +18,12 @@ The new peek and unpeek animations were generated from the existing character re
 B 版由 Seedance 2.0 参考已有刀盾狗形象与用户提供的动作参考生成，导出121帧、24fps。动作参考来自用户提供的动态表情，其原始作者未在本仓库核实；不公开原始参考文件或访问凭据，也不宣称获得其商业授权。本版为对齐身体与容纳挥刀，将其他既有动作统一留白、缩放及压缩，保留动作顺序和时序，图标原样保留。先前0.4.0的逐字节保留说明仅描述该历史版本。
 
 The B greeting was generated with Seedance 2.0 using the existing character and a user-supplied motion reference, then exported as 121 frames at 24 fps. The motion reference was an animated sticker whose original author has not been verified in this repository. The original reference and access credentials are not published, and no commercial license is claimed. Other existing actions receive common padding, scaling and compression to align the body and accommodate the blade, retaining their ordering and timing. The icon is unchanged. The preceding byte-preservation statement describes historical version 0.4.0 only.
+
+
+## Arrival voice candidate / 入场配音候选（未发布）
+
+Normal arrival plays the selected voice twice (180 ms gap), then the unchanged B greeting. Dragging or recalling cancels the voice. Requires the unreleased host appearance-audio v3 implementation; 0.23.2 and earlier do not support it. No published compatible host version is claimed.
+
+普通站定后原声两遍，间隔 180 毫秒，再播放原 B 动作。拖动、召回立即停止。依赖尚未发布的宿主音频 v3 能力，0.23.2 及以前不支持。当前为本地测试候选，不登记市场。
+
+Voice source selected by the user: https://www.myinstants.com/en/instant/what-da-dog-doin-35890/ (yt1s_wU4BGgD.mp3), converted to mono PCM16 16 kHz WAV. The source page does not establish a redistribution license; public audio distribution requires rights confirmation.

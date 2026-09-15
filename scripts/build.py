@@ -18,7 +18,7 @@ EDGE_FPS = dict(peek=12, unpeek=15, edgehide=1)
 MAX_PNG_BYTES = 8 * 1024**2
 MAX_PIXELS = 32 * 1024**2
 BASE_FILES = ('manifest.json', 'character.json', 'panel.html', 'panel.css', 'panel.js',
-              'preview.js', 'tray.png', 'LICENSE', 'ASSETS.md')
+              'preview.js', 'tray.png', 'LICENSE', 'ASSETS.md', 'arrival.wav')
 
 
 def read_regular(root, name):
@@ -149,6 +149,11 @@ def validate(root):
     png_pixels(icon)
     if hashlib.sha256(icon).hexdigest() != hashes['tray.png']:
         raise ValueError('accepted icon hash changed')
+    if character.get('arrivalAudio') != dict(file='arrival.wav', repeats=2, gapMs=180):
+        raise ValueError('arrival audio contract mismatch')
+    voice = read_regular(root, 'arrival.wav')
+    if hashlib.sha256(voice).hexdigest() != '6070e49c11ea2da9cf1ef89bcfceb3fb3229f3e63dd93652f9ae0012ba85ecc2':
+        raise ValueError('arrival audio hash changed')
     for name in BASE_FILES:
         read_regular(root, name)
     return {'frames': frames, 'pngBytes': total_bytes, 'pixels': pixels}
@@ -172,7 +177,7 @@ def audit_public_source(root):
             raise ValueError('public source contains a symlink')
         if path.name.startswith('.env') or path.suffix.lower() in {'.pem', '.key', '.log', '.dmg', '.asar', '.exe'}:
             raise ValueError('unexpected private or binary distribution file')
-        if not path.is_file() or path.suffix in {'.png', '.gif', '.jpg'}:
+        if not path.is_file() or path.suffix in {'.png', '.gif', '.jpg', '.wav'}:
             continue
         content = path.read_text(encoding='utf-8')
         # Build these markers from pieces so the scanner does not flag its own source.
