@@ -4,9 +4,9 @@
 
 为吐梨邦伙伴换上刀盾小狗形象，提供动作预览和桌面动作播放。换装保留伙伴原有的名字、人设和记忆。
 
-**0.5.0** 将打招呼替换为约 5 秒的 B 版动作。正常串门走到对方旁边、站定后自动播放一次；贴边探头不播放。保留全部 11 个动作状态。
+**0.6.0** 在约 5 秒的 B 版动作前加入两遍配音。正常串门走到对方旁边、站定后先播放配音，再表演一次；贴边探头不播放配音或 B 动作。保留全部 11 个动作状态。
 
-需要 **吐梨邦 0.23.0 或更新的兼容测试版本**，SDK `apiVersion: 1`。宿主目前通过受邀测试渠道提供，本仓库仅分发插件。
+需要 **吐梨邦 0.24.0 或更新的兼容测试版本**，SDK `apiVersion: 1`。宿主目前通过受邀测试渠道提供，本仓库仅分发插件。
 
 ## 使用
 
@@ -81,10 +81,10 @@ python3 scripts/build.py
 形象参考 [Bilibili 视频 BV1A8w7zCEwm](https://www.bilibili.com/video/BV1A8w7zCEwm/)，动作素材包含 AI 衍生图像；新增探头和收回参考已有刀盾形象生成，并非直接剪辑原视频动作帧。代码采用 MIT 许可；图片不在该许可范围内，也不宣称完全原创或可无限制商用。详见 [图片来源与权利](ASSETS.md) 和 [代码许可](LICENSE)。
 
 
-## Arrival voice candidate / 入场配音候选（未发布）
+## Arrival voice / 入场配音（0.6.0）
 
-Normal arrival plays the selected voice twice (180 ms gap), then the unchanged B greeting. Dragging or recalling cancels the voice. Requires the unreleased host appearance-audio v3 implementation; 0.23.2 and earlier do not support it. No published compatible host version is claimed.
+普通站定后播放原声两遍，间隔 180 毫秒，再播放原 B 动作。拖动、召回立即停止，探头入场不播。发送端和接收端均需宿主 0.24.0；接收端无需安装刀盾插件。宿主仍通过受邀测试渠道提供。
 
-普通站定后原声两遍，间隔 180 毫秒，再播放原 B 动作。拖动、召回立即停止。依赖尚未发布的宿主音频 v3 能力，0.23.2 及以前不支持。当前为本地测试候选，不登记市场。
+Normal arrival plays the voice twice with a 180 ms gap, then the unchanged B greeting. Dragging and recalling cancel the voice; edge peek has no voice. Both peers require host 0.24.0. The receiver does not need this plugin installed. Host builds remain invitation-only.
 
-Voice source selected by the user: https://www.myinstants.com/en/instant/what-da-dog-doin-35890/ (yt1s_wU4BGgD.mp3), converted to mono PCM16 16 kHz WAV. The source page does not establish a redistribution license; public audio distribution requires rights confirmation.
+Voice selected by the user: https://www.myinstants.com/en/instant/what-da-dog-doin-35890/ (yt1s_wU4BGgD.mp3), converted to mono PCM16 16 kHz WAV. Audio attribution is separate from the original visual asset license.

@@ -156,7 +156,7 @@ class DeliveryTests(unittest.TestCase):
         self.assertEqual(manifest['id'], 'sword-shield-pilot')
         self.assertEqual(manifest['name'], '刀盾小狗')
         self.assertEqual(manifest['version'], '0.6.0')
-        self.assertEqual(manifest['minHostVersion'], '0.23.0')
+        self.assertEqual(manifest['minHostVersion'], '0.24.0')
         self.assertEqual(manifest['permissions'], ['ui', 'appearance', 'pet'])
         self.assertIs(manifest['nodeAccess'], False)
         self.assertNotIn('tool', manifest['entry'])

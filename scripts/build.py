@@ -91,7 +91,7 @@ def validate(root):
     package = json.loads(read_regular(root, 'package.json'))
     if (manifest.get('id') != 'sword-shield-pilot' or manifest.get('version') != package.get('version')
             or not re.fullmatch(r'\d+\.\d+\.\d+', manifest.get('version', ''))
-            or manifest.get('apiVersion') != 1 or manifest.get('minHostVersion') != '0.23.0'
+            or manifest.get('apiVersion') != 1 or manifest.get('minHostVersion') != '0.24.0'
             or manifest.get('permissions') != ['ui', 'appearance', 'pet']
             or manifest.get('kind') != ['asset', 'panel'] or manifest.get('nodeAccess') is not False
             or set(manifest.get('entry', {})) != {'character', 'panel'}
@@ -205,8 +205,8 @@ def build(root=ROOT, destination=None):
     (destination / 'release-notes.md').write_text(
         '刀盾小狗 / Sword & Shield Pup\n\n'
         '11 个动作状态，202 帧透明 PNG；正常串门站定后播放约5秒B版打招呼，保留探头、收回与贴边停靠。\n'
-        '11 states, 202 transparent PNG frames; five-second B greeting after normal arrival, retaining peek, unpeek and edge rest.\n'
-        '需要吐梨邦 0.23.0 或更新的兼容测试版本。Requires compatible Tulibang 0.23.0 or later.\n\n'
+        '11 states, 202 transparent PNG frames. Two voice repeats before the five-second B greeting; dragging and recall stop audio. Both peers require host 0.24.0. Host builds remain invitation-only.\n'
+        '需要吐梨邦 0.24.0 或更新的兼容测试版本。Requires compatible Tulibang 0.24.0 or later.\n\n'
         '透明留白扩大，默认100%尺寸建议调至125%保持身体大小；不会自动调整。\n'
         'For the enlarged transparent canvas, change default size from 100% to 125% to preserve body scale; not automatic.\n'
         '权限 / Permissions: ui, appearance, pet. Node access: false.\n'

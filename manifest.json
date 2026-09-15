@@ -22,7 +22,7 @@
     }
   },
   "updateReminders": false,
-  "minHostVersion": "0.23.0",
+  "minHostVersion": "0.24.0",
   "description": "刀盾小狗自定义形象，包含 B 版串门打招呼、探头、收回等 11 个动作与外观预览面板。",
   "author": "github:ShunyuYao",
   "homepage": "https://github.com/ShunyuYao/pet-plugin-sword-shield",

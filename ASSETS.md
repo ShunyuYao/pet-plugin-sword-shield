@@ -20,10 +20,10 @@ B 版由 Seedance 2.0 参考已有刀盾狗形象与用户提供的动作参考�
 The B greeting was generated with Seedance 2.0 using the existing character and a user-supplied motion reference, then exported as 121 frames at 24 fps. The motion reference was an animated sticker whose original author has not been verified in this repository. The original reference and access credentials are not published, and no commercial license is claimed. Other existing actions receive common padding, scaling and compression to align the body and accommodate the blade, retaining their ordering and timing. The icon is unchanged. The preceding byte-preservation statement describes historical version 0.4.0 only.
 
 
-## Arrival voice candidate / 入场配音候选（未发布）
+## Arrival voice / 入场配音（0.6.0）
 
-Normal arrival plays the selected voice twice (180 ms gap), then the unchanged B greeting. Dragging or recalling cancels the voice. Requires the unreleased host appearance-audio v3 implementation; 0.23.2 and earlier do not support it. No published compatible host version is claimed.
+普通站定后播放原声两遍，间隔 180 毫秒，再播放原 B 动作。拖动、召回立即停止，探头入场不播。发送端和接收端均需宿主 0.24.0；接收端无需安装刀盾插件。宿主仍通过受邀测试渠道提供。
 
-普通站定后原声两遍，间隔 180 毫秒，再播放原 B 动作。拖动、召回立即停止。依赖尚未发布的宿主音频 v3 能力，0.23.2 及以前不支持。当前为本地测试候选，不登记市场。
+Normal arrival plays the voice twice with a 180 ms gap, then the unchanged B greeting. Dragging and recalling cancel the voice; edge peek has no voice. Both peers require host 0.24.0. The receiver does not need this plugin installed. Host builds remain invitation-only.
 
-Voice source selected by the user: https://www.myinstants.com/en/instant/what-da-dog-doin-35890/ (yt1s_wU4BGgD.mp3), converted to mono PCM16 16 kHz WAV. The source page does not establish a redistribution license; public audio distribution requires rights confirmation.
+Voice selected by the user: https://www.myinstants.com/en/instant/what-da-dog-doin-35890/ (yt1s_wU4BGgD.mp3), converted to mono PCM16 16 kHz WAV. Audio attribution is separate from the original visual asset license.
