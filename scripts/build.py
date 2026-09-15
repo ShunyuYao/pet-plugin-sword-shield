@@ -11,7 +11,7 @@ import zipfile
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-ACCEPTED_ACTION_COUNTS = dict(idle=12, walk=12, greet=6, speak=6, sleep=6, wake=6, drag=6, send=8)
+ACCEPTED_ACTION_COUNTS = dict(idle=12, walk=12, greet=121, speak=6, sleep=6, wake=6, drag=6, send=8)
 ACTION_COUNTS = dict(ACCEPTED_ACTION_COUNTS, peek=12, unpeek=12, edgehide=1)
 EDGE_LOOPS = dict(peek=False, unpeek=False, edgehide=True)
 EDGE_FPS = dict(peek=12, unpeek=15, edgehide=1)
@@ -105,13 +105,13 @@ def validate(root):
     expected_images = set(runtime_files(root)) - set(BASE_FILES) | {'tray.png'}
     if set(hashes) != expected_images:
         raise ValueError('frozen asset inventory mismatch')
-    accepted = json.loads(read_regular(root, 'tests/accepted-v0.3.1.sha256.json'))
+    accepted = json.loads(read_regular(root, 'tests/accepted-v0.5.0.sha256.json'))
     accepted_images = {f'{state}/{state}{i:02}.png'
                        for state, count in ACCEPTED_ACTION_COUNTS.items() for i in range(count)} | {'tray.png'}
     if set(accepted) != accepted_images:
-        raise ValueError('accepted v0.3.1 inventory mismatch')
+        raise ValueError('accepted v0.5.0 inventory mismatch')
     if any(hashes[name] != digest for name, digest in accepted.items()):
-        raise ValueError('accepted v0.3.1 assets must remain unchanged')
+        raise ValueError('accepted v0.5.0 assets must remain unchanged')
     total_bytes = pixels = frames = 0
     edge_dimensions = set()
     for state, count in ACTION_COUNTS.items():
@@ -121,6 +121,8 @@ def validate(root):
                 or type(clip.get('loop')) is not bool or not isinstance(clip.get('fps'), (int, float))
                 or not 0 < clip['fps'] <= 60):
             raise ValueError('animation contract mismatch: ' + state)
+        if state == 'greet' and (clip['fps'] != 24 or clip['loop'] is not False):
+            raise ValueError('greet timing contract mismatch')
         if state in EDGE_LOOPS and clip['loop'] is not EDGE_LOOPS[state]:
             raise ValueError('edge animation loop contract mismatch: ' + state)
         if state in EDGE_FPS and clip['fps'] != EDGE_FPS[state]:
@@ -197,9 +199,11 @@ def build(root=ROOT, destination=None):
     (destination / 'plugin.zip.sha256').write_text(digest + '  plugin.zip\n', encoding='ascii')
     (destination / 'release-notes.md').write_text(
         '刀盾小狗 / Sword & Shield Pup\n\n'
-        '11 个动作状态，87 帧透明 PNG；新增探头、收回与贴边停靠，保留原有 62 帧。\n'
-        '11 animation states, 87 transparent PNG frames; adds peek, unpeek and edge rest, retaining the original 62 frames.\n'
+        '11 个动作状态，202 帧透明 PNG；正常串门站定后播放约5秒B版打招呼，保留探头、收回与贴边停靠。\n'
+        '11 states, 202 transparent PNG frames; five-second B greeting after normal arrival, retaining peek, unpeek and edge rest.\n'
         '需要吐梨邦 0.23.0 或更新的兼容测试版本。Requires compatible Tulibang 0.23.0 or later.\n\n'
+        '透明留白扩大，默认100%尺寸建议调至125%保持身体大小；不会自动调整。\n'
+        'For the enlarged transparent canvas, change default size from 100% to 125% to preserve body scale; not automatic.\n'
         '权限 / Permissions: ui, appearance, pet. Node access: false.\n'
         '安装不会自动换装；在插件面板选择使用。Installing does not change appearance automatically.\n\n'
         '代码使用 MIT 许可；图片来源与权利说明见包内 ASSETS.md，不包含在代码许可内。\n'

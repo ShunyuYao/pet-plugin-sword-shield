@@ -34,24 +34,33 @@ class DeliveryTests(unittest.TestCase):
         shutil.copytree(ROOT, root, ignore=shutil.ignore_patterns('.git', 'dist', '__pycache__'))
         return root
 
-    def test_62_accepted_frames_and_icon_are_byte_identical(self):
-        baseline = (ROOT / 'tests/accepted-v0.3.1.sha256.json').read_bytes()
-        self.assertEqual(hashlib.sha256(baseline).hexdigest(),
+    def test_historical_baseline_is_retained_and_current_assets_are_frozen(self):
+        historical = (ROOT / 'tests/accepted-v0.3.1.sha256.json').read_bytes()
+        self.assertEqual(hashlib.sha256(historical).hexdigest(),
                          'cbdb3c56bc29e3f89f04d47ef306fa5cc3ea32c2ff70ecfdb3b59de1d6f3c7f3')
-        hashes = json.loads(baseline)
-        self.assertEqual(len(hashes), 63)
-        self.assertEqual(set(hashes), {f'{state}/{state}{i:02}.png'
-                         for state, count in build.ACCEPTED_ACTION_COUNTS.items() for i in range(count)} | {'tray.png'})
+        hashes = json.loads((ROOT / 'tests/accepted-v0.5.0.sha256.json').read_text())
+        self.assertEqual(len(hashes), 178)
         for name, expected in hashes.items():
             self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), expected, name)
+        self.assertEqual(hashes['tray.png'], json.loads(historical)['tray.png'])
 
-    def test_87_frames_fit_unchanged_production_resource_limits(self):
+    def test_greeting_keeps_complete_b_timing(self):
+        for field, value in [('fps', 12), ('loop', True)]:
+            root = self.fixture()
+            file = root / 'character.json'
+            spec = json.loads(file.read_text())
+            spec['anim']['greet'][field] = value
+            file.write_text(json.dumps(spec))
+            with self.assertRaisesRegex(ValueError, 'greet timing'):
+                build.validate(root)
+
+    def test_202_frames_fit_unchanged_production_resource_limits(self):
         self.assertEqual(build.MAX_PNG_BYTES, 8 * 1024**2)
         self.assertEqual(build.MAX_PIXELS, 32 * 1024**2)
         hashes = json.loads((ROOT / 'tests/assets.sha256.json').read_text())
-        self.assertEqual(len(hashes), 88)
+        self.assertEqual(len(hashes), 203)
         report = build.validate(ROOT)
-        self.assertEqual(report['frames'], 87)
+        self.assertEqual(report['frames'], 202)
         self.assertLessEqual(report['pngBytes'], build.MAX_PNG_BYTES)
         self.assertLessEqual(report['pixels'], build.MAX_PIXELS)
 
@@ -68,7 +77,7 @@ class DeliveryTests(unittest.TestCase):
             with self.subTest(name=name):
                 root = self.fixture()
                 self.replace_and_rehash(root, {name: (root / 'idle/idle01.png').read_bytes()})
-                with self.assertRaisesRegex(ValueError, 'v0.3.1 assets must remain unchanged'):
+                with self.assertRaisesRegex(ValueError, 'v0.5.0 assets must remain unchanged'):
                     build.validate(root)
 
     def test_real_valid_pngs_cannot_exceed_byte_or_decoded_pixel_budget(self):
@@ -139,7 +148,7 @@ class DeliveryTests(unittest.TestCase):
         manifest = json.loads((ROOT / 'manifest.json').read_text())
         self.assertEqual(manifest['id'], 'sword-shield-pilot')
         self.assertEqual(manifest['name'], '刀盾小狗')
-        self.assertEqual(manifest['version'], '0.4.0')
+        self.assertEqual(manifest['version'], '0.5.0')
         self.assertEqual(manifest['minHostVersion'], '0.23.0')
         self.assertEqual(manifest['permissions'], ['ui', 'appearance', 'pet'])
         self.assertIs(manifest['nodeAccess'], False)
@@ -226,8 +235,8 @@ class DeliveryTests(unittest.TestCase):
                 self.assertTrue((ROOT / f'docs/previews/{state}.gif').read_bytes().startswith(b'GIF89a'))
 
     def test_release_tag_matches_both_manifests(self):
-        build.validate_tag(ROOT, 'v0.4.0')
-        for tag in ('v0.3.1', '0.4.0', 'v0.4.0/extra', ''):
+        build.validate_tag(ROOT, 'v0.5.0')
+        for tag in ('v0.3.1', '0.5.0', 'v0.5.0/extra', ''):
             with self.assertRaises(ValueError):
                 build.validate_tag(ROOT, tag)
 

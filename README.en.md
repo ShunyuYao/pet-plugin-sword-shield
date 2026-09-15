@@ -4,7 +4,7 @@
 
 An appearance plugin for Tulibang with a preview panel and local pet animation controls. Applying it keeps your companion's name, personality, and memories.
 
-**0.4.0** adds peek, unpeek, and edge rest for 11 animation states. All 62 frames in the preceding eight actions remain unchanged, including the selected 12-frame walk.
+**0.5.0** replaces greet with the approximately five-second B animation. It plays once after a normal visitor docks beside the host pet, but not during edge-peek arrival. All 11 animation states remain available.
 
 Requires **a compatible Tulibang 0.23.0 or later test build**, with SDK `apiVersion: 1`. The host is currently available through invited testing channels. This repository distributes only the plugin.
 
@@ -19,13 +19,15 @@ Disabling or removing the active asset plugin restores the original companion ap
 
 ## 11 animation states
 
-There are 87 transparent RGBA8 PNG frames. The original eight actions retain all 62 frames at 512 × 512, together with the icon, byte for byte. Peek and unpeek add 12 frames each, with one edge-rest frame. The new states share a 288 × 288 canvas. The build enforces the existing total limits of 8 MiB of frame data and 32 Mi decoded pixels.
+There are 202 transparent RGBA8 PNG frames on a shared 320 × 320 canvas. Except for the new greeting, actions retain their ordering, frame counts and timing. Frames have new padding and color compression, so their bytes differ from 0.4.0; the icon is unchanged. The existing 8 MiB frame-data and 32 Mi decoded-pixel limits remain enforced.
+
+The larger transparent canvas gives the blade room. If using the default 100% size, set **125% (275)** to preserve approximate body size, then reposition the pet. The plugin does not adjust size or position automatically. Other sizes need a 1.25 multiplier; full compensation is impossible above the host limit of 330.
 
 | Animation | Frames | FPS | Pet playback |
 | --- | ---: | ---: | --- |
 | Idle `idle` | 12 | 8 | Loop |
 | Walk `walk` | 12 | 12.5 | Loop |
-| Greet `greet` | 6 | 6 | Once |
+| Greet `greet` | 121 | 24 | Once |
 | Speak `speak` | 6 | 6 | Loop |
 | Sleep `sleep` | 6 | 3 | Loop |
 | Wake `wake` | 6 | 5.25 | Once |
@@ -35,7 +37,7 @@ There are 87 transparent RGBA8 PNG frames. The original eight actions retain all
 | Unpeek `unpeek` | 12 | 15 | Once |
 | Edge rest `edgehide` | 1 | 1 | Hold |
 
-The previews below and in the panel loop for inspection; greet, wake, peek, and unpeek play once on the desktop. The final peek frame, edge-rest frame, and first unpeek frame are identical for a continuous join. Carry shows stepping in place with an item. Actual movement, screen-edge behavior, and visits belong to the host. Some visual differences remain between animations, and the six-frame actions have limited smoothness.
+The previews below and in the panel loop for inspection; greet, wake, peek, and unpeek play once on the desktop. The final peek frame, edge-rest frame, and first unpeek frame are identical for a continuous join. Carry shows stepping in place with an item. Actual movement, screen-edge behavior, and visits belong to the host. The final upward roar still cuts abruptly to idle, and light matte fringes can be visible on dark backgrounds. Other six-frame actions retain their limited smoothness.
 
 On host 0.23.1, docking the local pet plays peek and holds, while a visitor leaving the screen edge plays unpeek. Dragging the local pet away uses the existing drag action and does not automatically play unpeek. Both clips can also be played manually from the plugin panel.
 
